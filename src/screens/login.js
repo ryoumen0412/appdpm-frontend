@@ -13,6 +13,21 @@ export default function Login({ onLogin }) {
     setRut_usuario(filteredText);
   };
 
+  const validateRut = (rut) => {
+    if (!rut || rut.length === 0) {
+      return "El RUT no puede estar vacío";
+    }
+    if (rut.length < 9 || rut.length > 12) {
+      return "El RUT debe tener entre 9 y 12 caracteres";
+    }
+    // Validar formato básico (números y guión)
+    const rutPattern = /^[0-9]+-[0-9Kk]$/;
+    if (!rutPattern.test(rut)) {
+      return "Formato de RUT inválido (ej: 12345678-9)";
+    }
+    return null; // Válido
+  };
+
   const handlePasswordChange = (text) => {
     // Validar contraseña: solo letras, números y símbolos limitados !@#$%^&*()_+ ,.
     const filteredText = text.replace(/[^a-zA-Z0-9!@#$%^&*()_+\.,]/g, '');
@@ -25,8 +40,11 @@ export default function Login({ onLogin }) {
     if (!password || password.length === 0) {
       return "La contraseña no puede estar vacía";
     }
-    if (password.length > 20) {
-      return "La contraseña es demasiado larga";
+    if (password.length < 4) {
+      return "La contraseña debe tener al menos 6 caracteres";
+    }
+    if (password.length > 100) {
+      return "La contraseña es demasiado larga (máximo 100 caracteres)";
     }
     // Verificar caracteres ASCII imprimibles
     for (let char of password) {
@@ -38,20 +56,45 @@ export default function Login({ onLogin }) {
   };
 
   const handleLogin = async () => {
-    // Validar contraseña antes de enviar
+    // Limpiar error anterior
+    setError('');
+    console.log('Iniciando login con:', { rut_usuario, password });
+
+    // Validar RUT
+    const rutError = validateRut(rut_usuario);
+    if (rutError) {
+      setError(rutError);
+      return;
+    }
+
+    // Validar contraseña
     const passwordError = validatePassword(password);
     if (passwordError) {
       setError(passwordError);
       return;
     }
 
-    const res = await login(rut_usuario, password);
-    //console.log('Respuesta del backend:', res.token);
-    if (res.success && res.token) {
-      await guardarToken(res.token);
-      onLogin(rut_usuario); // ← Cambiado a rut_usuario
-    } else {
-      setError(res.error || 'Error desconocido');
+    try {
+      console.log('Haciendo llamada a login...');
+      const res = await login(rut_usuario, password);
+      console.log('Respuesta del login:', res);
+      
+      if (res.success && res.token) {
+        console.log('Login exitoso, guardando token...');
+        await guardarToken(res.token);
+        // Construimos objeto usuario con nivel y rut
+        onLogin({
+          rut: res.rut_usuario || rut_usuario,
+          nivel: res.nivel_usuario ?? null,
+          nombre: res.nombre || null
+        });
+      } else {
+        // Mostrar el mensaje específico del backend
+        setError(res.error || 'Error desconocido al iniciar sesión');
+      }
+    } catch (err) {
+      console.log('Error en login:', err);
+      setError('Error de conexión. Verifica tu conexión a internet.');
     }
   };
 
@@ -60,21 +103,30 @@ export default function Login({ onLogin }) {
       <View style={styles.card}>
         <Text style={styles.title}>Iniciar sesión</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, error && rut_usuario === '' ? styles.inputError : null]}
           placeholder="RUT (ej: 12345678-9)"
           keyboardType="numeric"
           value={rut_usuario}
           onChangeText={handleRutChange}
         />
         <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
+          style={[styles.input, error && password === '' ? styles.inputError : null]}
+          placeholder="Contraseña (mínimo 6 caracteres)"
           secureTextEntry
           value={password}
           onChangeText={handlePasswordChange}
         />
-        <Button title="Entrar" onPress={handleLogin} style={styles.coolButton} />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <Button 
+          title="Entrar" 
+          onPress={handleLogin} 
+          color={error ? '#dc3545' : '#007BFF'}
+        />
+        {error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorIcon}>⚠️</Text>
+            <Text style={styles.error}>{error}</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -111,17 +163,27 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 6,
   },
-  error: {
-    color: 'red',
-    marginTop: 10,
-    textAlign: 'center',
+  inputError: {
+    borderColor: '#dc3545',
+    borderWidth: 2,
   },
-  coolButton: {
-    color: 'blue',
-    borderRadius: 30,
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8d7da',
+    borderColor: '#f5c6cb',
+    borderWidth: 1,
+    borderRadius: 6,
     padding: 10,
-    backgroundColor: '#007BFF',
-    textAlign: 'center',
     marginTop: 10,
-  }
+  },
+  errorIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  error: {
+    color: '#721c24',
+    flex: 1,
+    fontSize: 14,
+  },
 });

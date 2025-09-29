@@ -1,8 +1,8 @@
-import { API_URL_PERSONAS_A_CARGO } from '@env';
+import { API_URL_TRABAJADORES_APOYO } from '@env';
 
-export async function fetchPersonas_a_cargo() {
+export async function fetchTrabajadores_apoyo() {
   try {
-    const response = await fetch(API_URL_PERSONAS_A_CARGO);
+    const response = await fetch(API_URL_TRABAJADORES_APOYO);
     if (!response.ok) throw new Error('Error al obtener datos');
     return await response.json();
   } catch (error) {
@@ -13,8 +13,11 @@ export async function fetchPersonas_a_cargo() {
 // -----------------------------
 // Helpers CRUD adicionales
 // -----------------------------
+
+// Manejo de respuesta estándar
 async function handleResponse(res) {
-  let body = null; try { body = await res.json(); } catch {}
+  let body = null;
+  try { body = await res.json(); } catch {/* ignore */}
   if (!res.ok) {
     const msg = body?.error || body?.message || `HTTP ${res.status}`;
     throw new Error(msg);
@@ -22,8 +25,8 @@ async function handleResponse(res) {
   return body;
 }
 
-export async function crearPersona(payload, token) {
-  const res = await fetch(API_URL_PERSONAS_A_CARGO, {
+export async function crearTrabajadorApoyo(payload, token) {
+  const res = await fetch(API_URL_TRABAJADORES_APOYO, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: token },
     body: JSON.stringify(payload),
@@ -31,9 +34,9 @@ export async function crearPersona(payload, token) {
   return handleResponse(res);
 }
 
-export async function actualizarPersona(rut, payload, token) {
+export async function actualizarTrabajadorApoyo(rut, payload, token) {
   if (!rut) throw new Error('RUT requerido');
-  const res = await fetch(`${API_URL_PERSONAS_A_CARGO}/${encodeURIComponent(rut)}`, {
+  const res = await fetch(`${API_URL_TRABAJADORES_APOYO}/${encodeURIComponent(rut)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', Authorization: token },
     body: JSON.stringify(payload),
@@ -41,16 +44,17 @@ export async function actualizarPersona(rut, payload, token) {
   return handleResponse(res);
 }
 
-export async function eliminarPersona(rut, token) {
+export async function eliminarTrabajadorApoyo(rut, token) {
   if (!rut) throw new Error('RUT requerido');
-  const res = await fetch(`${API_URL_PERSONAS_A_CARGO}/${encodeURIComponent(rut)}`, {
+  const res = await fetch(`${API_URL_TRABAJADORES_APOYO}/${encodeURIComponent(rut)}`, {
     method: 'DELETE',
     headers: { Authorization: token },
   });
   return handleResponse(res);
 }
 
-export async function obtenerPersonaLocal(rut) {
-  const list = await fetchPersonas_a_cargo();
-  return list.find(p => p.rut === rut) || null;
+// Local fallback (hasta tener endpoint GET /trabajadores_apoyo/<rut>)
+export async function obtenerTrabajadorApoyoLocal(rut) {
+  const list = await fetchTrabajadores_apoyo();
+  return list.find(t => t.rut === rut) || null;
 }

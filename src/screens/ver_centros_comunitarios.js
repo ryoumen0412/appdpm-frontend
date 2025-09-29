@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { borrarToken } from '../api/auth';
-import { fetchPersonas_a_cargo } from '../api/personas_a_cargo';
-import Tabla_personas_a_cargo from '../components/tabla_personas_a_cargo';
+import { fetchCentros_comunitarios } from '../api/centros_comunitarios';
+import Tabla_centros_comunitarios from '../components/tabla_centros_comunitarios';
 import HeaderBar from '../components/header_bar';
-// Importar helper centralizado de permisos
 import { puede } from '../utils/permisos';
 
-export default function Ver_personas_a_cargo({ usuario, onLogout, onNavigate }) {
-  const [personas, setPersonas] = useState([]);
+export default function Ver_centros_comunitarios({ usuario, onLogout, onNavigate }) {
+  const [datos, setDatos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const cargarPersonas = async () => {
+    const cargardatos = async () => {
       try {
         setCargando(true);
-        const data = await fetchPersonas_a_cargo();
-        setPersonas(data);
+        const data = await fetchCentros_comunitarios();
+        setDatos(data);
         setError(null);
       } catch (err) {
-        console.error('Error al cargar personas:', err);
+        console.error('Error al cargar centros comunitarios:', err);
         setError('Error al cargar los datos');
       } finally {
         setCargando(false);
       }
     };
-    cargarPersonas();
+    cargardatos();
   }, []);
 
   const handleLogout = async () => {
@@ -48,21 +47,18 @@ export default function Ver_personas_a_cargo({ usuario, onLogout, onNavigate }) 
           <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
             <Text style={styles.backButtonText}>← Volver al Menú</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Personas a Cargo</Text>
+          <Text style={styles.title}>Centros Comunitarios</Text>
         </View>
         
-        {cargando && <Text style={styles.loading}>Cargando personas...</Text>}
-        {error && <Text style={styles.error}>{error}</Text>}
-        {!cargando && !error && (
-          <View style={styles.content}>
-            {puede(usuario,'crear_persona') && (
-              <View style={styles.actionsContainer}>
-                <Button title="Añadir Persona" onPress={() => onNavigate('en_construccion')} color="#28a745" />
-              </View>
-            )}
-            <Tabla_personas_a_cargo data={personas} onNavigate={onNavigate} usuario={usuario} />
+        {puede(usuario,'crear_centro') && (
+          <View style={styles.actionsContainer}>
+            <Button title="Añadir Centro" onPress={() => onNavigate('en_construccion')} color="#28a745" />
           </View>
         )}
+
+        {cargando && <Text style={styles.loading}>Cargando centros comunitaros...</Text>}
+        {error && <Text style={styles.error}>{error}</Text>}
+  {!cargando && !error && <Tabla_centros_comunitarios data={datos} onNavigate={onNavigate} usuario={usuario} />}      
       </View>
     </View>
   );
@@ -74,6 +70,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 20,
     backgroundColor: '#fff',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'right',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   header: {
     alignItems: 'center',
@@ -114,22 +123,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'red',
     marginTop: 20,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
   },
 });

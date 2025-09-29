@@ -9,7 +9,7 @@ export async function login(rut_usr, password) {
     const res = await fetch(API_LOGIN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rut_usr, password }),
+      body: JSON.stringify({ rut_usuario: rut_usr, password }),
     });
     return await res.json();
   } catch (err) {
@@ -34,7 +34,7 @@ export async function verificarToken() {
   if (!token) return { error: 'No hay token' };
 
   try {
-    const res = await fetch(API_TOKEN, {
+    const res = await fetch(API_LOGIN, {
       method: 'GET',
       headers: { Authorization: token },
     });

@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { borrarToken } from '../api/auth';
-import { fetchPersonas_a_cargo } from '../api/personas_a_cargo';
-import Tabla_personas_a_cargo from '../components/tabla_personas_a_cargo';
+import { fetchTrabajadores_apoyo } from '../api/trabajadores_apoyo';
+import Tabla_trabajadores_apoyo from '../components/tabla_trabajadores_apoyo';
 import HeaderBar from '../components/header_bar';
-// Importar helper centralizado de permisos
 import { puede } from '../utils/permisos';
 
-export default function Ver_personas_a_cargo({ usuario, onLogout, onNavigate }) {
+export default function Ver_trabajadores_apoyo({ usuario, onLogout, onNavigate }) {
   const [personas, setPersonas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -16,7 +15,7 @@ export default function Ver_personas_a_cargo({ usuario, onLogout, onNavigate }) 
     const cargarPersonas = async () => {
       try {
         setCargando(true);
-        const data = await fetchPersonas_a_cargo();
+        const data = await fetchTrabajadores_apoyo();
         setPersonas(data);
         setError(null);
       } catch (err) {
@@ -48,21 +47,18 @@ export default function Ver_personas_a_cargo({ usuario, onLogout, onNavigate }) 
           <TouchableOpacity style={styles.backButton} onPress={handleBackToHome}>
             <Text style={styles.backButtonText}>← Volver al Menú</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Personas a Cargo</Text>
+          <Text style={styles.title}>Trabajadores de Apoyo</Text>
         </View>
         
-        {cargando && <Text style={styles.loading}>Cargando personas...</Text>}
-        {error && <Text style={styles.error}>{error}</Text>}
-        {!cargando && !error && (
-          <View style={styles.content}>
-            {puede(usuario,'crear_persona') && (
-              <View style={styles.actionsContainer}>
-                <Button title="Añadir Persona" onPress={() => onNavigate('en_construccion')} color="#28a745" />
-              </View>
-            )}
-            <Tabla_personas_a_cargo data={personas} onNavigate={onNavigate} usuario={usuario} />
+        {puede(usuario,'crear_trabajador') && (
+          <View style={styles.actionsContainer}>
+            <Button title="Añadir Trabajador" onPress={() => onNavigate('en_construccion')} color="#28a745" />
           </View>
         )}
+
+        {cargando && <Text style={styles.loading}>Cargando trabajadores...</Text>}
+        {error && <Text style={styles.error}>{error}</Text>}
+  {!cargando && !error && <Tabla_trabajadores_apoyo data={personas} onNavigate={onNavigate} usuario={usuario} />}      
       </View>
     </View>
   );
@@ -74,6 +70,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 20,
     backgroundColor: '#fff',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'right',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   header: {
     alignItems: 'center',
@@ -114,22 +123,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'red',
     marginTop: 20,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
   },
 });

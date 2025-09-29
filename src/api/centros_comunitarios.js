@@ -1,8 +1,8 @@
-import { API_URL_PERSONAS_A_CARGO } from '@env';
+import { API_URL_CENTROS_COMUNITARIOS } from '@env';
 
-export async function fetchPersonas_a_cargo() {
+export async function fetchCentros_comunitarios() {
   try {
-    const response = await fetch(API_URL_PERSONAS_A_CARGO);
+    const response = await fetch(API_URL_CENTROS_COMUNITARIOS);
     if (!response.ok) throw new Error('Error al obtener datos');
     return await response.json();
   } catch (error) {
@@ -22,8 +22,8 @@ async function handleResponse(res) {
   return body;
 }
 
-export async function crearPersona(payload, token) {
-  const res = await fetch(API_URL_PERSONAS_A_CARGO, {
+export async function crearCentro(payload, token) {
+  const res = await fetch(API_URL_CENTROS_COMUNITARIOS, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: token },
     body: JSON.stringify(payload),
@@ -31,9 +31,9 @@ export async function crearPersona(payload, token) {
   return handleResponse(res);
 }
 
-export async function actualizarPersona(rut, payload, token) {
-  if (!rut) throw new Error('RUT requerido');
-  const res = await fetch(`${API_URL_PERSONAS_A_CARGO}/${encodeURIComponent(rut)}`, {
+export async function actualizarCentro(id, payload, token) {
+  if (id == null) throw new Error('ID requerido');
+  const res = await fetch(`${API_URL_CENTROS_COMUNITARIOS}/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', Authorization: token },
     body: JSON.stringify(payload),
@@ -41,16 +41,16 @@ export async function actualizarPersona(rut, payload, token) {
   return handleResponse(res);
 }
 
-export async function eliminarPersona(rut, token) {
-  if (!rut) throw new Error('RUT requerido');
-  const res = await fetch(`${API_URL_PERSONAS_A_CARGO}/${encodeURIComponent(rut)}`, {
+export async function eliminarCentro(id, token) {
+  if (id == null) throw new Error('ID requerido');
+  const res = await fetch(`${API_URL_CENTROS_COMUNITARIOS}/${id}`, {
     method: 'DELETE',
     headers: { Authorization: token },
   });
   return handleResponse(res);
 }
 
-export async function obtenerPersonaLocal(rut) {
-  const list = await fetchPersonas_a_cargo();
-  return list.find(p => p.rut === rut) || null;
+export async function obtenerCentroLocal(id) {
+  const list = await fetchCentros_comunitarios();
+  return list.find(c => c.id === id) || null;
 }

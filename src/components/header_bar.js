@@ -2,11 +2,21 @@ import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
 export default function HeaderBar({ usuario, onLogout }) {
+  // Normaliza el nombre mostrado
+  let displayName = '';
+  if (usuario && typeof usuario === 'object') {
+    displayName = usuario.nombre || usuario.rut || 'Usuario';
+  } else if (typeof usuario === 'string') {
+    displayName = usuario;
+  } else {
+    displayName = 'Usuario';
+  }
+
   return (
     <View style={styles.header}>
       <Text style={styles.title}>Dirección de personas mayores Temuco</Text>
       <View style={styles.right}>
-        <Text style={styles.user}>👤 {usuario}</Text>
+        <Text style={styles.user}>👤 {displayName}</Text>
         <Button title="Cerrar sesión" onPress={onLogout} />
       </View>
     </View>

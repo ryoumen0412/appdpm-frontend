@@ -2,8 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, StyleSheet, Button } from 'react-native';
 import { puede } from '../utils/permisos';
 
-// Ahora acepta onNavigate como prop
-export default function Tabla_personas_a_cargo({ data, onNavigate, usuario }) {
+export default function Tabla_centros_comunitarios({ data, onNavigate, usuario }) {
   const handleNavigate = (destino) => {
     if (typeof onNavigate === 'function') {
       onNavigate(destino);
@@ -11,20 +10,21 @@ export default function Tabla_personas_a_cargo({ data, onNavigate, usuario }) {
       console.warn('onNavigate no fue pasado al componente Tabla_personas_a_cargo');
     }
   };
+
   const renderItem = ({ item }) => (
     <View style={styles.row}>
-      <Text style={[styles.cell, styles.dataColumn]}>{item.rut}</Text>
-      <Text style={[styles.cell, styles.dataColumn]}>{item.nombre}</Text>
-      <Text style={[styles.cell, styles.dataColumn]}>{item.apellido}</Text>
-      <Text style={[styles.cell, styles.dataColumn]}>{item.correo_electronico}</Text>
-      <Text style={[styles.cell, styles.dataColumn]}>{item.telefono}</Text>
-      <Text style={[styles.cell, styles.dataColumn]}>{item.fecha_nacimiento}</Text>
-      {(puede(usuario,'editar_persona') || puede(usuario,'borrar_persona')) && (
+      <Text style={[styles.cell,styles.dataColumn]}>{item.id}</Text>
+      <Text style={[styles.cell,styles.dataColumn]}>{item.nombre_centro}</Text>
+      <Text style={[styles.cell,styles.dataColumn]}>{item.direccion}</Text>
+      <Text style={[styles.cell,styles.dataColumn]}>{item.sector}</Text>
+      <Text style={[styles.cell,styles.dataColumn]}>{item.rut_encargado}</Text>
+      <Text style={[styles.cell,styles.dataColumn]}>{item.nombre_encargado}</Text>
+      {(puede(usuario,'editar_centro') || puede(usuario,'borrar_centro')) && (
         <View style={styles.actionsInline}>
-          {puede(usuario,'editar_persona') && (
-            <Button title="🖊️" onPress={() => onNavigate('editar_persona_a_cargo', { registro: { rut: item.rut }})} color="#ffc107" />
+          {puede(usuario,'editar_centro') && (
+            <Button title="🖊️" onPress={() => handleNavigate('en_construccion')} color="#ffc107" />
           )}
-          {puede(usuario,'borrar_persona') && (
+          {puede(usuario,'borrar_centro') && (
             <Button title="✖️" onPress={() => handleNavigate('en_construccion')} color="#dc3545" />
           )}
         </View>
@@ -34,14 +34,14 @@ export default function Tabla_personas_a_cargo({ data, onNavigate, usuario }) {
 
   const renderHeader = () => (
     <View style={styles.header}>
-      <Text style={[styles.headerCell,styles.dataColumn]}>RUT</Text>
-      <Text style={[styles.headerCell,styles.dataColumn]}>Nombre</Text>
-      <Text style={[styles.headerCell,styles.dataColumn]}>Apellido</Text>
-      <Text style={[styles.headerCell,styles.dataColumn]}>Correo Electrónico</Text>
-      <Text style={[styles.headerCell,styles.dataColumn]}>Teléfono</Text>
-      <Text style={[styles.headerCell,styles.dataColumn]}>Fecha de Nacimiento</Text>
-      {(puede(usuario,'editar_persona') || puede(usuario,'borrar_persona')) && (
-        <View style={styles.actionsInline}>
+      <Text style={[styles.headerCell,styles.dataColumn]}>id</Text>
+      <Text style={[styles.headerCell,styles.dataColumn]}>Nombre Centro</Text>
+      <Text style={[styles.headerCell,styles.dataColumn]}>Dirección</Text>
+      <Text style={[styles.headerCell,styles.dataColumn]}>Sector</Text>
+      <Text style={[styles.headerCell,styles.dataColumn]}>RUT Encargado</Text>
+      <Text style={[styles.headerCell,styles.dataColumn]}>Nombre Encargado</Text>
+      {(puede(usuario,'editar_centro') || puede(usuario,'borrar_centro')) && (
+        <View>
           <Text style={[styles.headerCell,styles.dataColumn]}>Acciones</Text>
         </View>
       )}
@@ -51,7 +51,7 @@ export default function Tabla_personas_a_cargo({ data, onNavigate, usuario }) {
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.rut}
+      keyExtractor={(item, index) => item.rut_encargado ? `${item.rut_encargado}-${index}` : `${item.nombre_centro}-${index}`}
       renderItem={renderItem}
       ListHeaderComponent={renderHeader}
     />

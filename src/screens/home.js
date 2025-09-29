@@ -9,8 +9,8 @@ export default function Home({ usuario, onLogout, onNavigate }) {
   // Datos de ejemplo para la grid - puedes personalizar esto
   const menuItems = [
     { id: '1', title: 'Personas a cargo', icon: '👮', action: 'ver_personas_a_cargo' },
-    { id: '2', title: 'Perfil', icon: '👤', action: 'perfil' },
-    { id: '3', title: 'Configuración', icon: '⚙️', action: 'configuracion' },
+    { id: '2', title: 'Trabajadores y apoyos', icon: '👷', action: 'ver_trabajadores_apoyo' },
+    { id: '3', title: 'Centros Comunitarios', icon: '🏠', action: 'ver_centros_comunitarios' },
     { id: '4', title: 'Reportes', icon: '📊', action: 'reportes' },
     { id: '5', title: 'Mensajes', icon: '💬', action: 'mensajes' },
     { id: '6', title: 'Calendario', icon: '📅', action: 'calendario' },
