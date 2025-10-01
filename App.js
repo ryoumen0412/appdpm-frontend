@@ -6,6 +6,7 @@ import CrearPersonaACargo from "./src/screens/crear_persona_a_cargo";
 import EditarPersonaACargo from "./src/screens/editar_persona_a_cargo";
 import Ver_trabajadores_apoyo from "./src/screens/ver_trabajadores_apoyo";
 import Ver_centros_comunitarios from "./src/screens/ver_centros_comunitarios";
+import VerMapa from "./src/screens/ver_mapa";
 import EnConstruccion from "./src/screens/en_construccion";
 import { verificarToken, logout as logoutApi } from "./src/api/auth";
 import { StyleSheet } from "react-native";
@@ -89,6 +90,14 @@ export default function App() {
     case "ver_centros_comunitarios":
       return (
         <Ver_centros_comunitarios
+          usuario={usuario}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+      );
+    case "ver_mapa":
+      return (
+        <VerMapa
           usuario={usuario}
           onLogout={handleLogout}
           onNavigate={handleNavigate}
