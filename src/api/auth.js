@@ -1,45 +1,57 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL_LOGIN, API_URL_TOKEN } from '@env'; 
+import { API_URL_LOGIN, API_URL_PROFILE, API_URL_LOGOUT } from "@env";
+import { apiRequest, authorizedRequest } from "./http";
+
+export { guardarToken, obtenerToken, borrarToken } from "./session";
 
 const API_LOGIN = API_URL_LOGIN;
-const API_TOKEN = API_URL_TOKEN;
+const API_PROFILE = API_URL_PROFILE;
+const API_LOGOUT = API_URL_LOGOUT;
+
+// Debug logging
+console.log("[AUTH] Environment variables loaded:");
+console.log("[AUTH] API_LOGIN =", API_LOGIN);
+console.log("[AUTH] API_PROFILE =", API_PROFILE);
+console.log("[AUTH] API_LOGOUT =", API_LOGOUT);
 
 export async function login(rut_usr, password) {
-  try {
-    const res = await fetch(API_LOGIN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rut_usuario: rut_usr, password }),
-    });
-    return await res.json();
-  } catch (err) {
-    return { error: 'No se pudo conectar al servidor' };
-  }
-}
+  console.log("[AUTH] Attempting login with RUT:", rut_usr);
+  console.log("[AUTH] Using endpoint:", API_LOGIN);
 
-export async function guardarToken(token) {
-  await AsyncStorage.setItem('token', token);
-}
+  const result = await apiRequest(API_LOGIN, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rut_usuario: rut_usr, password }),
+  });
 
-export async function obtenerToken() {
-  return await AsyncStorage.getItem('token');
-}
+  console.log("[AUTH] Login result:", {
+    success: result.success,
+    status: result.status,
+    hasToken: !!result.data?.token,
+    error: result.error,
+  });
 
-export async function borrarToken() {
-  await AsyncStorage.removeItem('token');
+  return result;
 }
 
 export async function verificarToken() {
-  const token = await obtenerToken();
-  if (!token) return { error: 'No hay token' };
+  return authorizedRequest(API_PROFILE, {
+    method: "GET",
+  });
+}
 
-  try {
-    const res = await fetch(API_LOGIN, {
-      method: 'GET',
-      headers: { Authorization: token },
-    });
-    return await res.json();
-  } catch (err) {
-    return { error: 'No se pudo verificar el token' };
-  }
+export async function logout() {
+  const result = await authorizedRequest(
+    API_LOGOUT,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+    {
+      requireToken: false,
+      clearOnFinish: true,
+    }
+  );
+  return result;
 }
